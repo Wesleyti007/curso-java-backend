@@ -1,25 +1,26 @@
-package com.backend.javabackend.repository;
+package com.backend.javabackend.services;
 
 import com.backend.javabackend.model.Product;
-import org.springframework.stereotype.Repository;
+import com.backend.javabackend.repository.ProductRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Optional;
 
-@Repository
-public class ProductRepository {
+@Service
+public class ProductService {
 
-    private List<Product> products = new ArrayList<>();
-    private Long lastId = 0L;
+    @Autowired
+    private ProductRepository productRepository;
 
     /**
      * Metodo para retornar uma lista de produto
      * @return Lista de produtos.
      */
     public List<Product> getAll(){
-        return products;
+      return productRepository.getAll();
     }
 
     /**
@@ -28,10 +29,8 @@ public class ProductRepository {
      * @return Retorna um produto.
      */
     public Optional<Product> getPerId(Long id){
-        return products
-                .stream()
-                .filter(product ->  product.getId() == id)
-                .findFirst();
+        return productRepository.getPerId(id);
+
     }
 
     /**
@@ -40,12 +39,7 @@ public class ProductRepository {
      * @return Retorna o produto que foi adicionado a lista
      * */
     public Product addProduct(Product product){
-        lastId++;
-
-        product.setId(lastId);
-        products.add(product);
-
-        return product;
+       return productRepository.addProduct(product);
     }
 
     /**
@@ -53,24 +47,17 @@ public class ProductRepository {
      * @param id do produto a ser deletado
      * */
     public void deleteProduct(Long id){
-        products.removeIf(product -> product.getId() == id );
+        productRepository.deleteProduct(id);
     }
 
     /**
      * Metodo para atualizar o produto
      * @param product produto a ser atualizado
+     * @param id do produto
      * @return Retorna o produto apos atualizacao
      * */
-    public Product updateProduct(Product product){
-        Optional<Product> productFound = getPerId(product.getId());
-
-        if(productFound.isEmpty()){
-            throw new InputMismatchException("Produto não encontrado");
-        }
-        deleteProduct(product.getId());
-        products.add(product);
-        return product;
+    public Product updateProduct(Long id, Product product){
+        product.setId(id);
+        return productRepository.updateProduct(product);
     }
-
 }
-
